@@ -1,59 +1,91 @@
-const { Users } = require('../models');
+const { Users } = require("../models");
 
-module.exports = {
-  // Get all users
-  getUsers(req, res) {
-    User.find()
-
-    .populate({
-      path: 'thoughts', 
-      select: '-v'
-    })
-    .populate({
-      path: 'friends', 
-      select: '-v'
-    })
-    .select('-v')
-
-      .then((users) => res.json(users))
-      .catch((err) => res.status(500).json(err));
-  },
-  // Get a single user
-  getSingleUser(req, res) {
-    User.findOne({ _id: req.params.userId })
-
-    .populate({
-      path: 'thoughts', 
-      select: '-v'
-    })
-    .populate({
-      path: 'friends', 
-      select: '-v'
-    })
-      .select('-v')
-
-      .then((user) =>
-        !user
-          ? res.status(404).json({ message: 'No user with that ID' })
-          : res.json(user)
-      )
-      .catch((err) => res.status(500).json(err));
-  },
-  // create a new user
+const usersController = {
   createUser(req, res) {
-    User.create(req.body)
-      .then((user) => res.json(user))
+    Users.create(req.body)
+      .then((dbUserData) => res.json(dbUserData))
+      .catch((err) => res.status(404).json(err));
+  },
+
+  getAllUsers(req, res) {
+    Users.find({})
+      .populate({ path: "thoughts", select: "-__v" })
+      .populate({ path: "friends", select: "-__v" })
+      .select("-__v")
+      .then((dbUserData) => res.json(dbUserData))
+      .catch((err) => res.status(400).json(err));
+  },
+
+  getUsersById(req, res) {
+    Users.findOne({ _id: req.params.userId })
+      .populate({ path: "thoughts", select: "-__v" })
+      .populate({ path: "friends", select: "-__v" })
+      .select("-__v")
+      .then((dbUserData) => {
+        !dbUserData
+          ? res.status(404).json({ message: "No User With That Id" })
+          : res.json(dbUserData);
+      })
       .catch((err) => res.status(500).json(err));
   },
-  // Delete a user and associated apps
+
+  updateUsers({ params, body }, res) {
+    Users.FindOneAndUpdate({ _id: params.id }, body, {
+      new: true,
+      runValidators: true,
+    })
+      .then((dbUserData) => {
+        !dbUserData
+          ? res.status(404).json({ message: "No User With That Id" })
+          : res.json(dbUserData);
+      })
+      .catch((err) => res.json(err));
+  },
+
   deleteUser(req, res) {
-    User.findOneAndDelete({ _id: req.params.userId })
-      .then((user) =>
-        !user
-          ? res.status(404).json({ message: 'No user with that ID' })
-          : res.json(user) 
+    Users.findOneAndDelete({ _id: req.params.userId })
+      .then((dbUserData) =>
+        !dbUserData
+          ? res.status(404).json({ message: "No user with that ID" })
+          : res.json(dbUserData)
       )
-      .then(() => res.json({ message: 'User and associated thougths deleted!'}))
+      .then(() =>
+        res.json({ message: "User and associated thougths deleted!" })
+      )
       .catch((err) => res.status(500).json(err));
+  },
+
+  addFriend({ params, body }, res) {
+    Users.FindOneAndUpdate(
+      { _id: params.id },
+      { $push: { friends: params.friendId } },
+      { new: true }
+    )
+      .populate({ path: "friends", select: "-__v" })
+      .select("-__v")
+      .then((dbUserData) => {
+        !dbUserData
+          ? res.status(404).json({ message: "No User Found With That Id" })
+          : res.json(dbUserData);
+      })
+      .catch((err) => res.json(err));
+  },
+
+  deleteFriend({ params }, res) {
+    Users.FindOneAndUpdate(
+      { _id: params.id },
+      { $pull: { friends: params.friendId } },
+      { new: true }
+    )
+      .populate({ path: "friends", select: "-__v" })
+      .select("-__v")
+      .then((dbUserData) => {
+        !dbUserData
+          ? res.status(400).json({ message: "No User Found With That Id" })
+          : res.json(dbUserData);
+      })
+      .catch((err) => res.status(400).json(err));
   },
 };
+
+module.exports = usersController;
