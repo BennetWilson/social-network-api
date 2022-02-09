@@ -1,7 +1,7 @@
 const { Users } = require("../models");
 
 const usersController = {
-  createUser(req, res) {
+  createUsers(req, res) {
     Users.create(req.body)
       .then((dbUserData) => res.json(dbUserData))
       .catch((err) => res.status(404).json(err));
@@ -42,7 +42,7 @@ const usersController = {
       .catch((err) => res.json(err));
   },
 
-  deleteUser(req, res) {
+  deleteUsers(req, res) {
     Users.findOneAndDelete({ _id: req.params.userId })
       .then((dbUserData) =>
         !dbUserData

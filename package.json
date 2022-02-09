@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,8 @@
   "homepage": "https://github.com/BennetWilson/social-network-api#readme",
   "dependencies": {
     "express": "^4.17.2",
-    "moment": "^2.29.1"
+    "moment": "^2.29.1",
+    "mongoose": "^6.2.1",
+    "nodemon": "^2.0.15"
   }
 }
