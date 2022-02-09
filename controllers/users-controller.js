@@ -20,7 +20,7 @@ const usersController = {
     User.findOne({ _id: req.params.userId })
       .populate({ path: "thoughts", select: "-__v" })
       .populate({ path: "friends", select: "-__v" })
-      // .select("-__v")
+
       .then((dbUserData) => {
         !dbUserData
           ? res.status(404).json({ message: "No User With That Id" })
@@ -44,15 +44,10 @@ const usersController = {
 
   deleteUsers(req, res) {
     User.findOneAndDelete({ _id: req.params.userId })
-      // .then((dbUserData) =>
-      //   !dbUserData
-      //     ? res.status(404).json({ message: "No user with that ID" })
-      //     : res.json(dbUserData)
-      // )
       .then(() =>
         res.send( "User and associated thoughts deleted!" )
       )
-      // .catch((err) => res.status(500).json(err));
+      .catch((err) => res.status(500).json(err));
   },
 
   addFriend({ params, body }, res) {
